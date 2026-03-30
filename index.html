@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proscreen</title>
+    <link rel="icon" href="favicon.jpg">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: #0a0a0a;
+        }
+        
+        .gradient-border {
+            background: linear-gradient(135deg, #333 0%, #111 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .glow {
+            box-shadow: 0 0 60px rgba(255,255,255,0.05);
+        }
+        
+        .recording-pulse {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .btn-primary {
+            background: white;
+            color: black;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,255,255,0.2);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            border-color: white;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            background: #333;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background: white;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: #666;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        
+        .toggle-switch.active::after {
+            left: 27px;
+            background: black;
+        }
+        
+        .preview-container {
+            background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .timer {
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .source-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .source-card:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .source-card.selected {
+            background: rgba(255,255,255,0.1);
+            border-color: white;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+    <!-- Intro Sound -->
+    <audio id="introSound" preload="auto">
+        <source src="https://files.catbox.moe/df3289.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-black/80 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="https://files.catbox.moe/bzlxgi.jpg" alt="Proscreen Logo" class="w-10 h-10 object-contain">
+                <span class="text-2xl font-black tracking-tight">PROSCREEN</span>
+            </div>
+            <a href="https://github.com/y4zs-dev" target="_blank" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                <span class="font-semibold">GitHub</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-12 px-6">
+        <div class="max-w-6xl mx-auto">
+            <!-- Hero Section -->
+            <div class="text-center mb-12 fade-in">
+                <h1 class="text-5xl md:text-7xl font-black mb-4 tracking-tight">
+                    Record Your Screen
+                </h1>
+                <p class="text-xl text-gray-400 font-medium max-w-2xl mx-auto">
+                    Professional 1080p @ 60fps screen recording. Capture your entire screen, browser tabs, or specific applications.
+                </p>
+            </div>
+
+            <!-- Main Recording Interface -->
+            <div class="grid lg:grid-cols-3 gap-6 fade-in" style="animation-delay: 0.1s;">
+                <!-- Preview Panel -->
+                <div class="lg:col-span-2">
+                    <div class="preview-container rounded-2xl overflow-hidden glow">
+                        <div class="p-4 border-b border-white/10 flex items-center justify-between">
+                            <span class="font-bold text-sm uppercase tracking-wider text-gray-400">Preview</span>
+                            <div id="recordingIndicator" class="hidden flex items-center gap-2">
+                                <div class="w-3 h-3 bg-red-500 rounded-full recording-pulse"></div>
+                                <span id="recordingTimer" class="timer font-bold text-red-500">00:00:00</span>
+                            </div>
+                        </div>
+                        <div class="aspect-video bg-black flex items-center justify-center relative">
+                            <video id="preview" class="w-full h-full object-contain hidden" autoplay muted playsinline></video>
+                            <div id="previewPlaceholder" class="text-center p-8">
+                                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-white/5 flex items-center justify-center">
+                                    <svg class="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <p class="text-gray-500 font-medium">Select a source to start preview</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recording Controls -->
+                    <div class="mt-6 flex flex-wrap items-center justify-center gap-4">
+                        <button id="startBtn" class="btn-primary px-8 py-4 rounded-full font-bold text-lg flex items-center gap-3">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10"/>
+                            </svg>
+                            Start Recording
+                        </button>
+                        <button id="stopBtn" class="btn-secondary px-8 py-4 rounded-full font-bold text-lg flex items-center gap-3 hidden">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <rect x="6" y="6" width="12" height="12" rx="2"/>
+                            </svg>
+                            Stop Recording
+                        </button>
+                        <button id="pauseBtn" class="btn-secondary px-6 py-4 rounded-full font-bold flex items-center gap-2 hidden">
+                            <svg id="pauseIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <rect x="6" y="4" width="4" height="16"/>
+                                <rect x="14" y="4" width="4" height="16"/>
+                            </svg>
+                            <svg id="resumeIcon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            <span id="pauseText">Pause</span>
+                        </button>
+                    </div>
+
+                    <!-- Download Section -->
+                    <div id="downloadSection" class="mt-6 hidden">
+                        <div class="gradient-border rounded-2xl p-6 text-center">
+                            <h3 class="text-xl font-bold mb-2">Recording Complete!</h3>
+                            <p class="text-gray-400 mb-4">Your video is ready to download</p>
+                            <button id="downloadBtn" class="btn-primary px-8 py-4 rounded-full font-bold text-lg inline-flex items-center gap-3">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                Download MP4
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Panel -->
+                <div class="space-y-6">
+                    <!-- Source Selection -->
+                    <div class="gradient-border rounded-2xl p-6 glow">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            Recording Source
+                        </h3>
+                        <div class="space-y-3">
+                            <button class="source-card w-full p-4 rounded-xl text-left flex items-center gap-4" data-source="screen">
+                                <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-bold">Entire Screen</div>
+                                    <div class="text-sm text-gray-500">Capture your full display</div>
+                                </div>
+                            </button>
+                            <button class="source-card w-full p-4 rounded-xl text-left flex items-center gap-4" data-source="window">
+                                <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9h16"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-bold">Application Window</div>
+                                    <div class="text-sm text-gray-500">Record a specific app</div>
+                                </div>
+                            </button>
+                            <button class="source-card w-full p-4 rounded-xl text-left flex items-center gap-4" data-source="browser">
+                                <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-bold">Browser Tab</div>
+                                    <div class="text-sm text-gray-500">Capture any browser tab</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Audio Settings -->
+                    <div class="gradient-border rounded-2xl p-6 glow">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                            </svg>
+                            Audio Settings
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold">System Audio</div>
+                                        <div class="text-sm text-gray-500">Capture system sounds</div>
+                                    </div>
+                                </div>
+                                <div id="systemAudioToggle" class="toggle-switch active"></div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold">Microphone</div>
+                                        <div class="text-sm text-gray-500">Record your voice</div>
+                                    </div>
+                                </div>
+                                <div id="micToggle" class="toggle-switch"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quality Settings -->
+                    <div class="gradient-border rounded-2xl p-6 glow">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            Quality
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                                <span class="text-gray-400">Resolution</span>
+                                <span class="font-bold">1080p</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                                <span class="text-gray-400">Frame Rate</span>
+                                <span class="font-bold">60 FPS</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                                <span class="text-gray-400">Format</span>
+                                <span class="font-bold">MP4 (WebM)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 py-8 px-6">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <img src="https://files.catbox.moe/jynogw.png" alt="Proscreen Logo" class="w-8 h-8 object-contain">
+                <span class="font-bold">PROSCREEN</span>
+            </div>
+            <p class="text-gray-500 text-sm">Professional screen recording in your browser. No downloads required.</p>
+            <a href="https://github.com/y4zs-dev" target="_blank" class="text-gray-400 hover:text-white transition-colors text-sm font-medium">
+                Made by y4zs-dev
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        // State
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let stream = null;
+        let micStream = null;
+        let timerInterval = null;
+        let seconds = 0;
+        let isPaused = false;
+        
+        // Settings
+        let settings = {
+            source: 'screen',
+            systemAudio: true,
+            microphone: false
+        };
+
+        // DOM Elements
+        const preview = document.getElementById('preview');
+        const previewPlaceholder = document.getElementById('previewPlaceholder');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const downloadSection = document.getElementById('downloadSection');
+        const recordingIndicator = document.getElementById('recordingIndicator');
+        const recordingTimer = document.getElementById('recordingTimer');
+        const systemAudioToggle = document.getElementById('systemAudioToggle');
+        const micToggle = document.getElementById('micToggle');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const resumeIcon = document.getElementById('resumeIcon');
+        const pauseText = document.getElementById('pauseText');
+        const sourceCards = document.querySelectorAll('.source-card');
+        const introSound = document.getElementById('introSound');
+
+        // Play intro sound on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Need user interaction for autoplay, so we try anyway
+            introSound.volume = 0.5;
+            introSound.play().catch(() => {
+                // If autoplay blocked, play on first interaction
+                document.body.addEventListener('click', () => {
+                    if (introSound.paused) {
+                        introSound.play().catch(() => {});
+                    }
+                }, { once: true });
+            });
+        });
+
+        // Source selection
+        sourceCards.forEach(card => {
+            card.addEventListener('click', () => {
+                sourceCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                settings.source = card.dataset.source;
+            });
+        });
+
+        // Toggle handlers
+        systemAudioToggle.addEventListener('click', () => {
+            settings.systemAudio = !settings.systemAudio;
+            systemAudioToggle.classList.toggle('active', settings.systemAudio);
+        });
+
+        micToggle.addEventListener('click', () => {
+            settings.microphone = !settings.microphone;
+            micToggle.classList.toggle('active', settings.microphone);
+        });
+
+        // Format time
+        function formatTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const secs = totalSeconds % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Start timer
+        function startTimer() {
+            seconds = 0;
+            recordingTimer.textContent = formatTime(seconds);
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    seconds++;
+                    recordingTimer.textContent = formatTime(seconds);
+                }
+            }, 1000);
+        }
+
+        // Stop timer
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        // Get display media constraints
+        function getDisplayMediaConstraints() {
+            const constraints = {
+                video: {
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 },
+                    frameRate: { ideal: 60 }
+                },
+                audio: settings.systemAudio
+            };
+
+            // For browser tab, prefer current tab
+            if (settings.source === 'browser') {
+                constraints.preferCurrentTab = true;
+            }
+
+            return constraints;
+        }
+
+        // Start recording
+        async function startRecording() {
+            try {
+                recordedChunks = [];
+                
+                // Get display media
+                const displayMediaOptions = getDisplayMediaConstraints();
+                stream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+
+                // Get microphone if enabled
+                if (settings.microphone) {
+                    try {
+                        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    } catch (e) {
+                        console.warn('Microphone access denied:', e);
+                    }
+                }
+
+                // Combine streams
+                const tracks = [...stream.getTracks()];
+                
+                // If we have both system audio and mic, mix them
+                if (micStream && stream.getAudioTracks().length > 0) {
+                    const audioContext = new AudioContext();
+                    const destination = audioContext.createMediaStreamDestination();
+                    
+                    const systemSource = audioContext.createMediaStreamSource(new MediaStream(stream.getAudioTracks()));
+                    const micSource = audioContext.createMediaStreamSource(micStream);
+                    
+                    systemSource.connect(destination);
+                    micSource.connect(destination);
+                    
+                    // Replace audio tracks with mixed audio
+                    tracks.forEach((track, index) => {
+                        if (track.kind === 'audio') {
+                            tracks.splice(index, 1);
+                        }
+                    });
+                    tracks.push(...destination.stream.getTracks());
+                } else if (micStream) {
+                    tracks.push(...micStream.getTracks());
+                }
+
+                const combinedStream = new MediaStream(tracks);
+
+                // Show preview
+                preview.srcObject = stream;
+                preview.classList.remove('hidden');
+                previewPlaceholder.classList.add('hidden');
+
+                // Setup MediaRecorder
+                const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') 
+                    ? 'video/webm;codecs=vp9' 
+                    : 'video/webm';
+                    
+                mediaRecorder = new MediaRecorder(combinedStream, {
+                    mimeType,
+                    videoBitsPerSecond: 8000000 // 8 Mbps for high quality
+                });
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    downloadSection.classList.remove('hidden');
+                };
+
+                // Handle stream end (user stops sharing)
+                stream.getVideoTracks()[0].onended = () => {
+                    stopRecording();
+                };
+
+                mediaRecorder.start(1000); // Collect data every second
+                
+                // Update UI
+                startBtn.classList.add('hidden');
+                stopBtn.classList.remove('hidden');
+                pauseBtn.classList.remove('hidden');
+                recordingIndicator.classList.remove('hidden');
+                recordingIndicator.classList.add('flex');
+                downloadSection.classList.add('hidden');
+                
+                startTimer();
+                isPaused = false;
+                
+            } catch (error) {
+                console.error('Error starting recording:', error);
+                alert('Failed to start recording. Please make sure you grant the necessary permissions.');
+            }
+        }
+
+        // Stop recording
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            
+            if (micStream) {
+                micStream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Update UI
+            stopBtn.classList.add('hidden');
+            pauseBtn.classList.add('hidden');
+            startBtn.classList.remove('hidden');
+            recordingIndicator.classList.add('hidden');
+            recordingIndicator.classList.remove('flex');
+            
+            stopTimer();
+            isPaused = false;
+            updatePauseButton();
+        }
+
+        // Pause/Resume recording
+        function togglePause() {
+            if (!mediaRecorder) return;
+            
+            if (isPaused) {
+                mediaRecorder.resume();
+                isPaused = false;
+            } else {
+                mediaRecorder.pause();
+                isPaused = true;
+            }
+            
+            updatePauseButton();
+        }
+
+        function updatePauseButton() {
+            if (isPaused) {
+                pauseIcon.classList.add('hidden');
+                resumeIcon.classList.remove('hidden');
+                pauseText.textContent = 'Resume';
+            } else {
+                pauseIcon.classList.remove('hidden');
+                resumeIcon.classList.add('hidden');
+                pauseText.textContent = 'Pause';
+            }
+        }
+
+        // Download recording
+        function downloadRecording() {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Proscreen_${new Date().toISOString().slice(0,19).replace(/[:-]/g, '')}.webm`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', startRecording);
+        stopBtn.addEventListener('click', stopRecording);
+        pauseBtn.addEventListener('click', togglePause);
+        downloadBtn.addEventListener('click', downloadRecording);
+
+        // Select first source by default
+        sourceCards[0].classList.add('selected');
+    </script>
+</body>
+</html>
